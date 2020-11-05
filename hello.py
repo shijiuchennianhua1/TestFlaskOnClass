@@ -1,13 +1,16 @@
-from flask import Flask, request, make_response, abort, render_template, url_for, session, redirect
+from flask import Flask, request, make_response, abort, render_template, url_for, session, redirect, flash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
 from form import NameForm
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 app.config['SECRET_KEY'] = '*^*9595∑åß∂'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://chenxuan:zhimakaimen@127.0.0.1/pblog'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
 @app.route('/', methods=['POST','GET'])
@@ -15,10 +18,11 @@ app.config['SECRET_KEY'] = '*^*9595∑åß∂'
 def index():
     response = make_response('<h1>This document carries a cookie!</h1>') 
     response.set_cookie('answer', '42')
-    name = None
     form = NameForm()
     if form.validate_on_submit():
-        name = form.name.data
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash('Looks like you have changed your name!')
         session['name'] = form.name.data
         form.name.data = ''
         return redirect(url_for('index'))
