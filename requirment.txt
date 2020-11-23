@@ -1,10 +1,13 @@
 alembic==1.4.3
 astroid==2.4.2
+blinker==1.4
 Bootstrap-Flask==1.5
 click==7.1.2
+colorama==0.4.4
 dominate==2.6.0
 Flask==1.1.2
 Flask-Bootstrap==3.3.7.1
+Flask-Mail==0.9.1
 Flask-Migrate==2.5.3
 Flask-Moment==0.10.0
 Flask-SQLAlchemy==2.4.4
