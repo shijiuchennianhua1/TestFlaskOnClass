@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %} 修改用户信息 {% endblock %}
+{% block head %}
+    <style>
+        .changeInfo{
+            width: 40%;
+            height: 40%;
+            margin-top: 5%;
+            padding-top: 3%;
+            padding-right: 3%;
+        }
+        .form-group a{
+            color: #000;
+        }
+    </style>
+{% endblock %}
+{% block page_content %}
+    <div class="card changeInfo mx-auto">
+        <h2 class="mx-auto">修改用户信息</h2>
+        <div class="mx-auto">
+            <form method="POST" role="form" class="mx-auto">
+                {{form.hidden_tag()}}
+                <div class="row form-group" align="center" style="width: 130%;">
+                    <label class="control-label col-sm-3">邮箱:</label>
+                    <input type="text" class="col-sm-6" disabled value="{{ user.email }}" id="email">
+                    <a href="{{ url_for('auth.update_user_information_email') }}" class="col-sm-3">修改</a>
+                </div>
+                <div class="row form-group" align="center" style="width: 130%;">
+                    <div class="control-label col-sm-3" style="border: 1px black"><label for="name">用户名:</label></div>
+                    {{ form.username(id='name', class='col-sm-6', value=user.username, id='username') }}
+                    {% for e in form.username.errors %}
+                        <span style="color: red" class="col-sm-3">{{ e }}</span>
+                    {% endfor %}
+                </div>
+                <div class="row form-group" align="center" style="width: 130%;">
+                    <div class="col-sm-1"></div>
+                    {{ form.submit(id='submit', class='col-sm-6 btn-primary') }}
+                    <a href="{{ url_for('auth.update_user_information_password') }}" class="col-sm-5">修改密码</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
