@@ -67,9 +67,25 @@
 
 <div class="flex-row d-flex" id="user-div">
     <div class="fans-list flex-row d-flex col-sm-11" id="user">
-        <div id="avatar-div">
+        <div id="avatar-div" title="{% if follows.follower.nickname %}{{ follows.follower.nickname }}
+                                    {% else %}{{ follows.follower.username }}{% endif %}"
+             data-toggle="popover" data-trigger="hover" data-placement="left" data-html="true"
+             data-content="
+                             关注:{{ follows.follower.followed_number }}&nbsp;&nbsp;
+                             粉丝:{{ follows.follower.fans_number }}<br>
+                             注册时间:{{ follows.follower.member_since }}<br>
+                             发布工具数:{{ follows.follower.tools.__len__() }}<br>
+                             {% if current_user.can(Permissions.FOLLOW) %}
+                                 {% if follows.follower.is_followed(current_user) %}
+                                     已关注
+                                 {% endif %}
+                             {% endif %}
+                             <hr>
+                             {% if follows.follower.about_me %}{{ follows.follower.about_me }}
+                             {% else %}这位用户很懒，什么都没有写呢{% endif %}"
+        >
             {% if follows.follower.avatar_name %}
-                <img src="{{ url_for('static',filename='file/avatar/'+follows.follower.avatar_name) }}"
+                <img src=" {{ url_for('static',filename='file/avatar/'+follows.follower.avatar_name) }}"
                      alt="" id="Avatar">
             {% else %}
                 <div id="Avatar-div">

@@ -2,27 +2,390 @@
 {% from 'bootstrap/form.html' import render_form %}
 
 {% block title %}index{% endblock %}
-
+{% block head %}
+    <style>
+        .able-link.active{
+            color: #bd0300;
+            font-weight: bold;
+        }
+        .able-link{
+            color: #000;
+        }
+        .page-link, .page-item.disabled .page-link{
+            background-color: rgba(255, 255, 255, 0);
+            border: 1px solid #000000;
+        }
+        #big-card{
+            width: 60%;
+            height: 50%;
+            padding: 2%;
+        }
+        .tools{
+            width: 98%;
+            height: 50%;
+            padding: 3%;
+            margin-bottom: 2%;
+        }
+        .tools a{
+            color: black;
+            font-size: 20px;
+        }
+        #upload-time-div{
+            color: #787878;
+            font-size: 16px;
+            margin-bottom: 2%;
+            line-height: 100%;
+        }
+        #head-div{
+            border-bottom: 1px black dashed;
+        }
+        #content-div{
+            padding: 2%;
+            font-size: 12px;
+        }
+        #Avatar-div{
+            width: 15px;
+            height: 15px;
+            box-shadow: 1px 1px 1px black;
+            overflow: hidden;
+            margin-right: 1%;
+        }
+        #Avatar{
+            width: 100%;
+            height: 100%;
+            vertical-align: top;
+        }
+        #Avatar-div-user{
+            width: 50px;
+            height: 50px;
+            box-shadow: 1px 1px 1px black;
+            overflow: hidden;
+            margin-right: 1%;
+        }
+        #user{
+            height: 100%;
+        }
+        .nickname-div{
+            width: auto;
+            height: 100%;
+            line-height: 100%;
+        }
+        .nickname-div a{
+            color: black;
+            font-size: 13px;
+        }
+        .nickname-div-user{
+            width: auto;
+            height: 100%;
+        }
+        .nickname-div-user a{
+            color: black;
+            font-size: 15px;
+        }
+        .users{
+            width: 100%;
+            height: 100%;
+            padding: 5% 7% 5% 5%;
+            margin-bottom: 3%;
+        }
+        #user-card{
+            width: 35%;
+            height: 100%;
+            padding: 1%;
+        }
+        #big-div{
+            width: 100%;
+            max-width: 90%;
+        }
+        .btn-success{
+            display: block;
+            width: 15%;
+            height: 50%;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 5px;
+            font-size: 15px;
+            padding: 1%;
+            box-shadow: 1px 1px 1px #000000;
+            text-decoration: none;
+        }
+        .btn-danger{
+            background-color: #272727;
+            display: block;
+            width: 15%;
+            height: 50%;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 5px;
+            font-size: 15px;
+            padding: 1%;
+            box-shadow: 1px 1px 1px #000000;
+            text-decoration: none;
+        }
+        #user{
+            line-height: 200%;
+        }
+        #Fans a{
+            color: #131313;
+            margin-left: 18%;
+            margin-top: -5%;
+        }
+        #card-nav{
+            width: 60%;
+            margin-top: 2%;
+            border-radius: 10%;
+            color: black;
+        }
+        .card-nav-item .active{
+            background: url("{{ url_for('static', filename='/background/cardBack2.png') }}");
+        }
+    </style>
+{% endblock %}
 {% block page_content %}
-<form method="POST">
-    {{ render_form(form) }}
-</form>
-<div class="page-header">
-    <h1>
-        HELLO 
-        {% if name %}
-            {{ name }}
-        {% else %}
-            陌生人
-        {% endif %}
-    </h1>
-    {% if know %}
-        <p>很高兴再次见到你</p>
-    {% else %}
-        <p>欢迎</p>
+    {% if user.can(Permissions.FOLLOW) %}
+        <ul class="nav nav-tabs" id="card-nav">
+            <li class="nav-item card-nav-item">
+                <a href="{{ url_for('main.index', number=1, show_type=0) }}?search={{ search }}&isDeal=false"
+                   class="nav-link {% if show_type==0 %}active{% endif %}">
+                    显示全部
+                </a>
+            </li>
+            <li class="nav-item card-nav-item">
+                <a href="{{ url_for('main.index', number=1, show_type=1) }}?search={{ search }}&isDeal=false"
+                   class="nav-link {% if show_type==1 %}active{% endif %}">
+                    显示关注
+                </a>
+            </li>
+            <li class="nav-item card-nav-item">
+                <a href="{{ url_for('main.index', number=1, show_type=2) }}?search={{ search }}&isDeal=false"
+                   class="nav-link {% if show_type==2 %}active{% endif %}">
+                    显示自己
+                </a>
+            </li>
+        </ul>
     {% endif %}
-    <p>{{ content|capitalize }}</p>
-    <p>当地时间是:{{ moment(current_time).format('LLL') }}</p>
-    <p>最后更新于{{ moment(current_time).fromNow(refresh=True) }}</p>
-</div>
+    <div class="card mx-auto float-left" id="big-card">
+        {% for tool in tools %}
+            <div class="card tools" id="tool-{{ tool[0].id }}">
+                <div class="container" id="head-div">
+                    <div class="row">
+                        <a href="{{ url_for('main.tools_show', tool_id=tool[0].id) }}"><h4>{{ tool[0].title }}</h4></a>
+                    </div>
+                    <div class="">
+                        <div id="user" class="row justify-content-start">
+                            <div class="rounded-circle" id="Avatar-div"
+                                 title="{% if tool[1].nickname %}{{ tool[1].nickname }}
+                                        {% else %}{{ tool[1].username }}
+                                        {% endif %}"
+                                 data-toggle="popover" data-trigger="hover" data-placement="left" data-html="true"
+                                 data-content="
+                                         关注:{{ tool[1].followed_number }}&nbsp;&nbsp;
+                                         粉丝:{{ tool[1].fans_number }}<br>
+                                         注册时间:{{ tool[1].member_since }}<br>
+                                         发布工具数:{{ tool[1].tools.__len__() }}<br>
+                                         {% if current_user.can(Permissions.FOLLOW) %}
+                                             {% if tool[1].is_followed(user) %}
+                                                 已关注
+                                             {% endif %}
+                                         {% endif %}
+                                         <hr>
+                                         {% if tool[1].about_me %}{{ tool[1].about_me }}
+                                         {% else %}这位用户很懒，什么都没有写呢{% endif %}
+                                ">
+                                {% if tool[1].avatar_name %}
+                                    <img src="{{ url_for('static',filename='file/avatar/'+tool[1].avatar_name) }}"
+                                         alt="" id="Avatar">
+                                {% else %}
+                                    <div class="rounded-circle mx-auto" id="Avatar-div">
+                                        <img src="{{ tool[1].gravatar() }}" alt="" id="Avatar">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {% if tool[1].nickname %}
+                                <div style="margin-right: 2%" class="nickname-div justify-content-center">
+                                    <a href="{{ url_for('main.user', username=tool[1].username) }}">
+                                        {{ tool[1].nickname }}
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div style="margin-right: 2%" class="nickname-div justify-content-center">
+                                    <a href="{{ url_for('main.user', username=tool[1].username) }}">
+                                        {{ tool[1].username }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div id="upload-time-div" class="row justify-content-end">
+                            {{ moment(tool[0].upload_time).fromNow() }}
+                        </div>
+                    </div>
+                </div>
+                <div class="" id="content-div">
+                    {{ tool[0].introduction }}
+                </div>
+            </div>
+        {% endfor %}
+        <div id="pagination-div" class="footer mx-auto">
+            <ul class="pagination">
+                {% if current_number-1 > 0 %}
+                    <li class="page-item">
+                        <a href="{{ url_for('main.index', number=current_number - 1, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                           class="page-link able-link">上一页</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><p class="page-link">没有上一页了</p></li>
+                {% endif %}
+
+                {% if pageNumber > 10 %}
+                    <li class="page-item">
+                        <a href="{{ url_for('main.index', number=1, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                           class="page-link able-link" id="1">1</a>
+                    </li>
+                    {% if current_number - 3 > 1 and current_number != 1 %}
+                        <li class="page-item disabled"><p class="page-link">…</p></li>
+                    {% endif %}
+                    {% for i in range(current_number - 2, current_number + 1) %}
+                        {% if i > 1 and i != pageNumber %}
+                            <li class="page-item">
+                                <a href="{{ url_for('main.index', number=i, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                                   class="page-link able-link" id="{{ i }}">
+                                    {{ i }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% for i in range(current_number + 1, current_number + 3) %}
+                        {% if i < pageNumber %}
+                            <li class="page-item">
+                                <a href="{{ url_for('main.index', number=i, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                                   class="page-link able-link" id="{{ i }}">
+                                    {{ i }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if current_number != pageNumber and current_number + 4 <= pageNumber %}
+                        <li class="page-item disabled"><p class="page-link">…</p></li>
+                    {% endif %}
+                    <li class="page-item">
+                        <a href="{{ url_for('main.index', number=pageNumber, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                           class="page-link able-link"
+                           id="{{ pageNumber }}">
+                            {{ pageNumber }}
+                        </a>
+                    </li>
+                {% else %}
+                    {% for index in range(1, pageNumber + 1) %}
+                        <li class="page-item">
+                            <a href="{{ url_for('main.index', number=index, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                               class="page-link able-link" id="{{ index }}">
+                                {{ index }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+
+                {% if current_number < pageNumber %}
+                    <li class="page-item">
+                        <a href="{{ url_for('main.index', number=current_number + 1, show_type=show_type) }}?search={{ search }}&isDeal=false"
+                           class="page-link able-link">
+                            下一页
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><p class="page-link">没有下一页了</p></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="card float-right" id="user-card">
+        {% for user in users %}
+            <div class="card users">
+                <div id="user" class="row justify-content-start"
+                     title="{% if user.nickname %}{{ user.nickname }}{% else %}{{ user.username }}{% endif %}"
+                     data-toggle="popover" data-trigger="hover" data-placement="left" data-html="true"
+                     data-content="
+                                     关注:{{ user.followed_number }}&nbsp;&nbsp;
+                                     粉丝:{{ user.fans_number }}<br>
+                                     注册时间:{{ user.member_since }}<br>
+                                     发布工具数:{{ user.tools.__len__() }}<br>
+                                     {% if current_user.can(Permissions.FOLLOW) %}
+                                         {% if user.is_followed(current_user) %}
+                                             已关注
+                                         {% endif %}
+                                     {% endif %}
+                                     <hr>
+                                     {% if user.about_me %}{{ user.about_me }}{% else %}这位用户很懒，什么都没有写呢{% endif %}
+                                ">
+                    <div class="rounded-circle" id="Avatar-div-user">
+                        {% if user.avatar_name %}
+                            <img src="{{ url_for('static',filename='file/avatar/'+user.avatar_name) }}"
+                                 alt="" id="Avatar">
+                        {% else %}
+                            <div class="rounded-circle mx-auto" id="Avatar-div-user">
+                                <img src="{{ user.gravatar() }}" alt="" id="Avatar">
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if user.nickname %}
+                        <div style="margin-right: 2%" class="nickname-div-user col-sm-8">
+                            <a href="{{ url_for('main.user', username=user.username) }}">
+                                {{ user.nickname }}
+                            </a>
+                        </div>
+                    {% else %}
+                        <div style="margin-right: 2%" class="nickname-div-user col-sm-8">
+                            <a href="{{ url_for('main.user', username=user.username) }}">
+                                {{ user.username }}
+                            </a>
+                        </div>
+                    {% endif %}
+                    {% if current_user.can(Permissions.FOLLOW) and user != current_user %}
+                        {% if user.is_followed(current_user) %}
+                            <a href="{{ url_for('.un_follow', user_id=user.id) }}" class="btn-danger col-sm-2">
+                                已关注
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('.follow', user_id=user.id) }}" class="btn-success col-sm-2">
+                                关注
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="row" id="Fans">
+                    <a href="{{ url_for('auth.show_fans', user_id=user.id, page_number=1) }}">
+                        粉丝：{{ user.fans_number }}
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <script>
+        window.onload = function(){
+            let current_pagination = document.getElementById('{{ current_number }}');
+            current_pagination.classList.add('active');
+        };
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover();
+        });
+        {#type等于0时是返回全部tools模式， type等于1时是返回关注者tools模式， type等于2时是返回自己的tools模式#}
+        {#        function Show_all(request_url, type){#}
+        {#            var big_card = $('#big-card');#}
+        {#            $.ajax({#}
+        {#                url:request_url,#}
+        {#                type:"POST",#}
+        {#                data:JSON.stringify(type),#}
+        {#                contentType:"application/json: charset=utf-8",#}
+        {#                success:function(data){#}
+        {#                    if (data) {#}
+        {#                        big_card.html('');#}
+        {#                        $('<p>'+data+'</p>').appendTo(big_card)#}
+        {#                    }#}
+        {#                    else {#}
+        {#                        alert('error');#}
+        {#                    }#}
+        {#                }#}
+        {#            });#}
+        {#        }#}
+    </script>
 {% endblock %}

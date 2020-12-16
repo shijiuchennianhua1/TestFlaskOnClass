@@ -5,38 +5,162 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>{% block title %}{% endblock %}--myblock</title>
     <link rel="icon" href="{{ url_for('static', filename='blog.ico') }}">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfil.org/popper.js/1.15.0/umd/popper.min.js"></script>
     {{ bootstrap.load_css() }}
+    {% block head %}{% endblock %}
+    <style>
+        a{
+            color: white;
+        }
+        #password{
+            border-radius: 5px;
+            background: url("{{ url_for('static', filename='login/key.ico') }}") -2px no-repeat;
+            background-size: 32px 32px;
+            padding-left: 32px;
+        }
+        #new-password{
+            border-radius: 5px;
+            background: url("{{ url_for('static', filename='resetPassword/newPassword.ico') }}") -2px no-repeat;
+            background-size: 32px 32px;
+            padding-left: 32px;
+        }
+        #username{
+            border-radius: 5px;
+            background: url("{{ url_for('static', filename='resetPassword/user.svg') }}") 2px no-repeat;
+            background-size: 20px 20px;
+            padding-left: 32px;
+        }
+        #password:hover, #email:hover, #new-password:hover{
+            box-shadow:0 0 2px #393939 inset;
+        }
+        #password:focus, #email:focus, #new-password:focus{
+            box-shadow: 0 0 2px #00bda5;
+        }
+        #email{
+            border-radius: 5px;
+            background: url("{{ url_for('static', filename='login/email.svg') }}") 2px no-repeat;
+            background-size: 25px 25px;
+            padding-left: 32px;
+        }
+        html, body{
+            width: 100%;
+            height: 100%;
+            background: url("{{ url_for('static', filename='background/back2.png') }}") no-repeat fixed;
+            background-size: 100% 100%;
+        }
+        .card{
+            border-radius: 10px;
+            box-shadow: 5px 5px 10px rgb(111, 111, 111);
+            background-image: url("{{ url_for('static', filename='background/cardBack2.png') }}");
+            background-size: 200% 200%;
+        }
+        .navbar{
+            padding: 0;
+            background-image: url("{{ url_for('static', filename='background/back2.png') }}");
+            box-shadow:0 0 1px white;
+        }
+        .navbar:hover{
+            box-shadow:0 0 2px white;
+        }
+        .card:hover{
+            border-radius: 12px;
+        }
+        .btn-primary{
+            background-color: black;
+            height: 3rem;
+        }
+        .btn-primary:hover{
+            background-color: #474747;
+        }
+        .btn-primary:checked{
+            background-color: #7e7e7e;
+        }
+        .dropdown-menu{
+            margin-right: 5%;
+        }
+        blockquote{
+            padding-left: 5%;
+            border-left: 3px rgba(40, 40, 40, 0.5) solid;
+            color: #272727;
+        }
+        #search-input{
+            border-radius: 5px;
+        }
+        #search-input:hover, #search-input:focus{
+            box-shadow: 0 0 1px #00bc07 inset;
+            border: 1px #00bc07 solid;
+        }
+        #search{
+            vertical-align: center;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm bg-primary navbar-dark">
-        <ul class="navbar-nav">
+<div id="row">
+    <nav class="navbar">
+        <ul class="nav">
             <li class="nav-item active">
-                <a class="nav-link" href="{{ url_for('index') }}">index</a>
+                <a class="nav-link" href="{{ url_for('main.index') }}">主页</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('user', username='aaa') }}">User</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#">Disabled</a>
-            </li>
-        </ul>
-    </nav>
-    <div class="container">
-        {% for message in get_flashed_messages() %} 
-            <div class="alert alert-warning">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                {{ message }}
+            {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.user', username=current_user.username ) }}">用户</a>
+                </li>
+            {% endif %}
+            {% block navbar %}
+            {% endblock %}
+            <div class="nav-item justify-content-end" id="search">
+                {% if show_type %}
+                    <form action="{{ url_for('main.index', number=1, show_type=show_type) }}" method="get" class="nav-item">
+                {% else %}
+                    <form action="{{ url_for('main.index') }}" method="get" class="nav-item">
+                {% endif %}
+                <label>
+                    <input type="text" placeholder="search..." id="search-input" name="search">
+                </label>
+                <input type="submit" class="btn-dark" value="搜索">
+                </form>
             </div>
-        {% endfor %}
-        {% block page_content %}{% endblock %}
-    </div>
-    {{ bootstrap.load_js() }}
+        </ul>
+        {% if current_user.is_authenticated %}
+            <div class="dropdown nav-item justify-content-end">
+                <button class="btn dropdown-toggle mr-auto" style="color: white;" id="dropdown1"
+                        type="button" data-toggle="dropdown">
+                    {{ current_user.username }}
+                    <span class="caret"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-right" style="color: black;" aria-labelledby="dropdown1">
+                    <a href="{{ url_for('main.update_user_information') }}" class="dropdown-item nav-link">修改登录资料</a>
+                    {% if current_user.can(Permissions.WRITE) %}
+                        <a href="{{ url_for('main.upload_tool') }}" class="dropdown-item nav-link">发布工具</a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}" class="dropdown-item nav-link">登出</a>
+                </div>
+            </div>
+        {% else %}
+            <li class="nav justify-content-end">
+                <a class="nav-link" href="{{ url_for('auth.login') }}">登录</a>
+            </li>
+        {% endif %}
+    </nav>
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+<div id="big-div" class="container">
+    {% block page_content %}{% endblock %}
+</div>
+{% block page %}{% endblock %}
+{{ bootstrap.load_js() }}
 </body>
 {% block script %}
     {{ moment.include_moment() }}
     {{ moment.locale('Zh-cn') }}
+    {{ pagedown.include_pagedown() }}
 {% endblock %}
 </html>

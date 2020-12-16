@@ -1,0 +1,7 @@
+亲爱的{{ user.username }}! <br>
+欢迎来到FLASKY <br>
+若要修改您的邮箱，请点击以下链接 <br>
+{{ url_for('auth.update_user_information_reset_email', token=token, _external=True, email=user.email) }} <br>
+真诚的, <br>
+Flasky团队 <br>
+注意：对此电子邮件地址的回复不会受到监控。

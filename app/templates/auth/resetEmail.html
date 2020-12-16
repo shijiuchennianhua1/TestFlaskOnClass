@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}
+    修改邮箱
+{% endblock %}
+{% block head %}
+    <style>
+        .card{
+            width: 50%;
+            height: 50%;
+            margin-top: 5%;
+            padding: 3%;
+        }
+    </style>
+{% endblock %}
+{% block page_content %}
+    <div class="card mx-auto">
+        <div class="page-header mx-auto">
+            <h1>修改邮箱</h1>
+        </div>
+        <div class="mx-auto">
+            <form action="" method="post" role="form">
+                {{form.hidden_tag()}}
+                <div class="container">
+                    <div class="row form-group">
+                        <label for="old_email" class="col-sm-4">旧邮箱</label>
+                        <input type="text" class="col-sm-8" disabled value="{{ email }}">
+                    </div>
+                    <div class="row form-group">
+                        <label for="new_email" class="col-sm-4">新邮箱</label>
+                        {{ form.new_email(id='new_email', class='col-sm-8') }}
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm-4">
+                            Click=>
+                        </div>
+                        {{ form.submit(id='submit', class='btn-primary col-sm-8 mx-auto') }}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

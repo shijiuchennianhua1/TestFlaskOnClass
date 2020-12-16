@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block page_content %}
+    <h1>亲爱的用户 {{ user.username }}!</h1><br>
+    <h2>您还没有认证您的账号</h2><br>
+    <p>在登录此站之前请先认证您的账号，检查您的收件箱，您会收到一封带有认证链接的邮件</p><br>
+    需要其它认证邮件? <a href="{{ url_for('auth.resend_confirmation') }}">点击这里</a>
+{% endblock %}

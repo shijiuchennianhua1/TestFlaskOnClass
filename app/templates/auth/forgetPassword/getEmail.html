@@ -1,5 +1,33 @@
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% block title %}忘记密码{% endblock %}
+{% block head %}
+    <style>
+        .card{
+            width: 50%;
+            height: 50%;
+            margin-top: 5%;
+            padding: 5px;
+        }
+        #email{
+
+        }
+    </style>
+{% endblock %}
 {% block page_content %}
-    {{ wtf.quick_form(form) }}
+    <div class="card mx-auto">
+        <div class="mx-auto">
+            <h3>请输入邮箱</h3>
+        </div>
+        <form action="" method="post" role="form">
+            {{ form.hidden_tag() }}
+            <div id="email-div" class="form-group">
+                {{ form.email(placeholder='请输入您的邮箱', id='email', class='col-sm-12') }}
+            </div>
+            <div id="submit-div" class="form-group">
+                {{ form.submit(id='submit', class='btn-primary col-sm-12') }}
+            </div>
+        </form>
+{#        {{ wtf.quick_form(form) }}#}
+    </div>
 {% endblock %}

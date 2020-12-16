@@ -1,13 +1,67 @@
 {% extends "base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-
+{#{% import "bootstrap/wtf.html" as wtf %}#}
 {% block title %}Flasky - Login{% endblock %}
+{% block head %}
+    <style>
 
+        p a{
+            color: #0058ff;
+        }
+        .card{
+            width: 40%;
+            height: 60%;
+            padding: 3%;
+            margin-top: 5%;
+        }
+        .login-div{
+            width: 60%;
+            height: 60%;
+            margin: 0 auto;
+            padding: 0;
+        }
+        #remember_me{
+            clip: rect(6px 15px 15px 6px);
+        }
+        #forget-password{
+            padding: 0;
+        }
+    </style>
+{% endblock %}
 {% block page_content %}
-<div class="page-header">
-    <h1>Login</h1>
-</div>
-<div class="col-md-4">
-    {{ wtf.quick_form(form) }}
-</div>
+    <div class="card mx-auto">
+        <div class="page-header mx-auto">
+            <h1>登录</h1>
+        </div>
+        <div class="mx-auto login-div">
+            <form action="" method="post" role="form">
+                {{form.hidden_tag()}}
+                <div class="email row form-group">
+                    {{ form.email(id='email', class='col-sm-12', placeholder='请输入您的邮箱') }}
+                </div>
+                <div class="password row form-group">
+                    {{ form.password(id='password', class='col-sm-12', placeholder='请输入您的密码') }}
+                </div>
+                <div class="remember_me row form-group" id="4_line">
+                    <label for="remember_me" class="col-sm-7" id="remember_me_content">
+                        {{ form.remember_me(id='remember_me') }}
+                        记住我
+                    </label>
+                    <p class="col-sm-5" id="forget-password">
+                        <a href="{{ url_for('auth.forget_password') }}" class="mr-auto">忘记密码?</a>
+                    </p>
+                </div>
+                <div class="submit row form-group" id="5_line">
+                    {{ form.submit(class='btn-primary col-sm-12') }}
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <p class="col-sm-auto mx-auto">
+                <a href="{{ url_for('auth.register') }}">
+                    点击注册
+                </a>
+            </p>
+        </div>
+    </div>
+
 {% endblock %}

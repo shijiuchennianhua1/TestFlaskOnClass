@@ -67,39 +67,55 @@
 
 <div class="flex-row d-flex" id="user-div">
     <div class="fans-list flex-row d-flex col-sm-11" id="user">
-        <div id="avatar-div">
-            {% if follows.follower.avatar_name %}
-                <img src="{{ url_for('static',filename='file/avatar/'+follows.follower.avatar_name) }}"
+        <div id="avatar-div" title="{% if follows.followed.nickname %}{{ follows.followed.nickname }}
+                                    {% else %}{{ follows.followed.username }}{% endif %}"
+             data-toggle="popover" data-trigger="hover" data-placement="left" data-html="true"
+             data-content="
+                             关注:{{ follows.followed.followed_number }}&nbsp;&nbsp;
+                             粉丝:{{ follows.followed.fans_number }}<br>
+                             注册时间:{{ follows.followed.member_since }}<br>
+                             发布工具数:{{ follows.followed.tools.__len__() }}<br>
+                             {% if current_user.can(Permissions.FOLLOW) %}
+                                 {% if follows.followed.is_followed(current_user) %}
+                                     已关注
+                                 {% endif %}
+                             {% endif %}
+                             <hr>
+                             {% if follows.followed.about_me %}{{ follows.followed.about_me }}
+                             {% else %}这位用户很懒，什么都没有写呢{% endif %}"
+        >
+            {% if follows.followed.avatar_name %}
+                <img src="{{ url_for('static',filename='file/avatar/'+follows.followed.avatar_name) }}"
                      alt="" id="Avatar">
             {% else %}
                 <div id="Avatar-div">
-                    <img src="{{ follows.follower.gravatar() }}" alt="" id="Avatar">
+                    <img src="{{ follows.followed.gravatar() }}" alt="" id="Avatar">
                 </div>
             {% endif %}
         </div>
         <div id="name">
-            {% if follows.follower.nickname %}
-                <a href="{{ url_for('main.user', username=follows.follower.username) }}">
-                    {{ follows.follower.nickname }}
+            {% if follows.followed.nickname %}
+                <a href="{{ url_for('main.user', username=follows.followed.username) }}">
+                    {{ follows.followed.nickname }}
                 </a>
             {% else %}
-                <a href="{{ url_for('main.user', username=follows.follower.username) }}">
-                    {{ follows.follower.username }}
+                <a href="{{ url_for('main.user', username=follows.followed.username) }}">
+                    {{ follows.followed.username }}
                 </a>
             {% endif %}
         </div>
         <div id="followed-time">
-            此粉丝关注于：{{ moment(follows.followed_time).format('LLL') }}
+            关注于：{{ moment(follows.followed_time).format('LLL') }}
         </div>
     </div>
-    {% if current_user.can(Permissions.FOLLOW) and follows.follower != current_user %}
-        {% if follows.follower.is_followed(current_user) %}
-            <a href="{{ url_for('main.un_follow', user_id=follows.follower.id) }}"
+    {% if current_user.can(Permissions.FOLLOW) and follows.followed != current_user %}
+        {% if follows.followed.is_followed(current_user) %}
+            <a href="{{ url_for('main.un_follow', user_id=follows.followed.id) }}"
                class="btn-danger">
                 已关注
             </a>
         {% else %}
-            <a href="{{ url_for('main.follow', user_id=follows.follower.id) }}"
+            <a href="{{ url_for('main.follow', user_id=follows.followed.id) }}"
                class="btn-success">
                 关注
             </a>

@@ -1,10 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block head %}
+    <style>
+        .card{
+            width: 90%;
+            height: 100%;
+            padding: 5%;
+            margin-top: 3%;
+        }
+        .flask-pagedown{
+            width: 50%;
+            height: 100%;
+        }
+        #flask-pagedown-contents{
+            width: 100%;
+            height: 500px;
+        }
+        #flask-pagedown-contents-preview{
+            background-color: white;
+            width: 50%;
+            height: 500px;
+            border: 1px #000000 solid;
+            overflow: auto;
+            padding: 1%;
+        }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card mx-auto">
+        <form action="" method="post" role="form" novalidate enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="mx-auto" align="center"><h2>发布小工具</h2></div>
+            <div class="row" id="title">
+                {{ form.title(class='col-sm-12', placeholder='请输入标题') }}
+            </div>
+            <div class="row" id="introduction">
+                {{ form.introduction(class='col-sm-12', placeholder='请输入简介') }}
+            </div>
+            <div class="row" id="contents">
+                {{ form.contents(class='col-sm-12', placeholder='请输入小工具的详细介绍', draggable="ture") }}
+            </div>
+            <div class="row" id="upload-pictures">
+                上传介绍图：
+                {{ form.pictures(id='upload-pictures') }}
+                {% for error in form.pictures.errors %}
+                    <div style="color: red">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="row" id="upload-file">
+                上传文件：
+                {{ form.file(id='upload-file') }}
+                {% for error in form.file.errors %}
+                    <div style="color: red;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="row" id="submit">
+                {{ form.submit(id='submit', class='col-sm-12 btn-primary') }}
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.ondragover = function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        };
+        document.ondrop = function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        };
+    </script>
+{% endblock %}
+

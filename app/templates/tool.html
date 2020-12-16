@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <style>
+        #avatar-div{
+            width: 30px;
+            height: 30px;
+            box-shadow: 1px 1px 1px black;
+            overflow: hidden;
+            margin-right: 1%;
+        }
+        #Avatar{
+            width: 100%;
+            height: 100%;
+            vertical-align: top;
+        }
+        #user-div{
+            width: 100%;
+            height: 100%;
+        }
+        #nickname-div a{
+            line-height: 200%;
+            color: black;
+        }
+        #comments{
+            padding: 0 5% 1%;
+        }
+        #content-id{
+            padding: 3%;
+        }
+        .contents{
+            width: 100%;
+            height: 100%;
+            margin-left: -1%;
+            border-bottom: 1px #000000 dashed;
+            line-height: 200%;
+        }
+        #write-review{
+            width: 71%;
+        }
+        .btn-dark{
+            height: 2rem;
+        }
+        #upload-time-div{
+            width: 100%;
+            height: 100%;
+            margin-left: -1%;
+            color: #3e3e3e;
+            font-size: 12px;
+        }
+        .card {
+            margin-top: 2%;
+            margin-bottom: 2rem;
+        }
+        #download-div{
+            height: 10%;
+            width: 10%;
+            text-align: center;
+            align-content: center;
+            margin: 10% auto;
+        }
+        #download-div a{
+            color: black;
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 1px #000000 solid;
+        }
+        .prompt{
+            color: red;
+            width: 71%;
+        }
+        .prompt-download a{
+            height: 10%;
+            width: 10%;
+            text-align: center;
+            align-content: center;
+            margin: 10% auto;
+            color: red;
+            display: block;
+            border: 1px #000000 solid;
+        }
+        .carousel{
+            width: 100%;
+            height: 500px;
+        }
+        .carousel-inner{
+            width: 100%;
+            height: 100%;
+        }
+        .carousel-inner img{
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card">
+        <div id="title-div" class="container" align="center">
+            <h1>{{ tool.title }}</h1>
+        </div>
+        <div id="content-id" class="card-body container">
+            {% if tool.pictures %}
+                <div class="carousel slide" data-ride="carousel" id="demo">
+                    <ul class="carousel-indicators">
+                        {% for index in range(0, tool.pictures.__len__()) %}
+                            <li data-target="#demo" data-slide-to='{{ index }}'
+                                {% if index == 0 %}class="active"{% endif %}>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="carousel-inner">
+                        {% for pic in tool.pictures %}
+                            <div class="carousel-item {% if tool.pictures.index(pic) == 0 %}active{% endif %}">
+                                <img src="{{ url_for('static', filename='file/pictures/' + pic.file_name) }}" alt="">
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <a class="carousel-control-prev" href="#demo" data-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </a>
+                    <a class="carousel-control-next" href="#demo" data-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </a>
+                </div>
+            {% endif %}
+            {% if tool.contents_html %}
+                {{ tool.contents_html | safe }}
+            {% else %}
+                {{ tool.contents }}
+            {% endif %}
+
+            {% if tool.file_old_name %}
+                附件名称：{{ tool.file_old_name }}
+            {% endif %}
+
+            {% if current_user.can(Permissions.DOWNLOAD) %}
+                <div id="download-div" class="row">
+                    <a href="{{ url_for('main.download', tool_id=tool.id) }}">
+                        附件下载
+                    </a>
+                </div>
+            {% else %}
+                <div class="row prompt-download">
+                    <a href="{{ url_for('auth.login') }}">
+                        请登录后下载附件
+                    </a>
+                </div>
+            {% endif %}
+            <hr>
+        </div>
+        <div id="comments" class="card-body">
+            {% for comment in tool.comments %}
+                <div class="">
+                    <div class="user row" id="user-div">
+                        <div class="avatar-div rounded-circle" id="avatar-div">
+                            {% if comment.auth.avatar_name %}
+                                <img src="{{ url_for('static',filename='file/avatar/'+comment.auth.avatar_name) }}"
+                                     alt="" id="Avatar">
+                            {% else %}
+                                <img src="{{ comment.auth.gravatar() }}" alt="" id="Avatar">
+                            {% endif %}
+                        </div>
+                        <div class="nickname" id="nickname-div">
+                            {% if comment.auth.nickname %}
+                                <a href="{{ url_for('main.user', username=comment.auth.username) }}">{{ comment.auth.nickname }}</a>
+                            {% else %}
+                                <a href="{{ url_for('main.user', username=comment.auth.username) }}">{{ comment.auth.username }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row" id="upload-time-div">
+                        {{ moment(comment.upload_time).format('LLL') }}
+                    </div>
+                    <div class="contents row">
+                        {{ comment.contents }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block page %}
+    {% if current_user.can(Permissions.COMMIT) %}
+        <div id="write-review" class="fixed-bottom mx-auto">
+            <form action="" method="post" role="form">
+                {{ form.hidden_tag() }}
+                <div class="row">
+                    {{ form.review(class='col-sm-10') }}
+                    {{ form.submit(class='col-sm-2 btn-dark', value='提交评论', id='btn') }}
+                </div>
+            </form>
+        </div>
+    {% else %}
+        <div id="prompt" class="fixed-bottom mx-auto prompt">
+            <div class="row">
+                {{ form.review(class='col-sm-10 disabled-review', disabled="disabled",
+                value='您需要登录后才能进行评论') }}
+                {{ form.submit(class='col-sm-2 btn-dark', value='提交评论', id='btn', disabled="disabled") }}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

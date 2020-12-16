@@ -1,10 +1,165 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+{% block head %}
+    <style>
+        .card{
+            width: 50%;
+            height: 100%;
+            margin-top: 5%;
+            padding: 1%;
+        }
+        #about-me{
+            width: 100%;
+            height: 150px;
+        }
+    </style>
+    <script>
+        var province_url = "{{ url_for('auth.select_city') }}";
+        var city_url = "{{ url_for('auth.select_area') }}";
+    </script>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card mx-auto">
+        <form action="" method="post" role="form" class="container" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="row form-group" id="nickname-div">
+                <div class="col-sm-2">昵称:</div>
+                {% if user.nickname %}
+                    {{ form.nickname(id='nickname', class='col-sm-10', value=user.nickname) }}
+                {% else %}
+                    {{ form.nickname(id='nickname', class='col-sm-10') }}
+                {% endif %}
+            </div>
+            {% if form.nickname.errors %}
+                <div class="row form-group" id="nickname-error-div" style="color: red;">
+                    {{ form.nickname.errors }}
+                </div>
+            {% endif %}
+            <div class="row form-group" id="select-div">
+                <div class="col-sm-2">地址:</div>
+                {{ form.province(id='province', class='col-sm-4', onchange="Select('province', '#city', province_url)") }}
+                {{ form.city(id='city', class='col-sm-3', onchange="Select('city', '#area', city_url)") }}
+                {{ form.area(id='area', class='col-sm-3') }}
+            </div>
+            {% if form.province.errors %}
+                <div class="row form-group" id="province-errors">
+                    {{ form.province.errors }}
+                </div>
+            {%  elif form.city.errors %}
+                <div class="row form-group" id="city-errors">
+                    {{ form.city.errors }}
+                </div>
+            {% elif form.area.errors %}
+                <div class="row form-group" id="area-errors">
+                    {{ form.area.errors }}
+                </div>
+            {% endif %}
+            {% if current_user.is_administrator() %}
+                <div class="row form-group" id="change-role-div">
+                    <div class="col-sm-2">角色:</div>
+                    {{ form.role(id='role', class='col-sm-10') }}
+                </div>
+                {% if form.role.errors %}
+                    <div class="row form-group" id="change-role-errors" style="color: red;">
+                        {{ form.role.errors }}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="row form-group" id="about-me-div">
+                {{ form.about_me(id='about-me', class='col-sm-12') }}
+            </div>
+            {% if form.about_me.errors %}
+                <div class="row form-group" id="about-me-errors" style="color: red">
+                    {{ form.about_me.errors }}
+                </div>
+            {% endif %}
+            <div class="row form-group" id="upload-avatar-div">
+                <div class="col-sm-3">上传头像:</div>
+                {{ form.avatar(id='upload-avatar', class='col-sm-9') }}
+            </div>
+            {% for error in form.avatar.errors %}
+                <div class="row form-group" id="upload-avatar-errors" style="color: red">
+                    {{ error }}
+                </div>
+            {% endfor %}
+            <div class="row form-group" id="submit-div">
+                {{ form.submit(id='submit', class='col-sm-12 btn-primary') }}
+            </div>
+        </form>
+    </div>
+
+    <script>
+        window.onload = function () {
+            {% if user.about_me %}
+                $('#about-me').html('{{ user.about_me.replace('\r', '').replace('\n', '').
+            replace('\r\n', '') }}');
+            {% endif %}
+            {% if current_user.is_administrator() %}
+                role = document.getElementById('role');
+                for (i = 0; i < role.length; i++) {
+                    if (role[i].value == {{ user.role_id }}){
+                        role[i].selected = true;
+                    }
+                }
+            {% endif %}
+            select = document.getElementById('province');
+            for (i=0; i<select.length; i++) {
+                var name = select[i].text;
+                if(name == '{{ user.province }}'){
+                    select[i].selected = true;
+                }
+            }
+            Select('province', '#city', province_url);
+            setTimeout(function () {
+                city = document.getElementById('city');
+                for (j=0; j<city.length; j++){
+                    var city_name = city[j].text;
+                    if (city_name == '{{ user.city }}'){
+                        city[j].selected = true;
+                    }
+                }
+                Select('city', '#area', city_url);
+            }, 200);
+            setTimeout(function () {
+                area = document.getElementById('area');
+                for (k=0; k<area.length; k++){
+                    var area_name = area[k].text;
+                    if (area_name == '{{ user.area }}'){
+                        area[k].selected = true;
+                    }
+                }
+            }, 1000)
+        };
+
+        function Select(current_id, next_id, register_url) {
+            var data;
+            var select = document.getElementById(current_id);
+            $(next_id).html('');
+            for(i=0; i<select.length; i++){
+                if(select[i].selected){
+                    Name = select[i].text;
+                    data={
+                        "name":Name
+                    };
+                    $.ajax({
+                        url:register_url,
+                        type:"POST",
+                        data:JSON.stringify(data),
+                        contentType:"application/json: charset=utf-8",
+                        success:function(data){
+                            if (data) {
+                                $("<option value=''></option>").appendTo(next_id);
+                                for (i = 0; i < data.length; i++) {
+                                    $("<option value='"+data[i]+"'>" + data[i] + "</option>").appendTo(next_id)
+                                }
+                            }
+                            else {
+                                alert('error');
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+{% endblock %}

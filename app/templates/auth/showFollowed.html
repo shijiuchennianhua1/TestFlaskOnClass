@@ -1,10 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block head %}
+    <style>
+        .page-link.active{
+            color: #bd0300;
+            font-weight: bold;
+        }
+        .page-link{
+            color: #000;
+        }
+        .page-link, .page-item.disabled .page-link{
+            background-color: rgba(255, 255, 255, 0);
+            border: 1px solid #000000;
+        }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <div class="card mx-auto">
+        {% for follows in fans_pagination.items %}
+            {% include 'auth/_userListForFollowed.html' %}
+        {% endfor %}
+        <ul class="pagination mx-auto" style="margin-top: 2%">
+            {% if fans_pagination.has_prev %}
+                <li class="page-item">
+                    <a href="{{ url_for('auth.show_followed_users', user_id=user_id, page_number=fans_pagination.prev_num) }}"
+                       class="page-link">
+                        上一页
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <p href="#" class="page-link disabled">
+                        没有上一页了
+                    </p>
+                </li>
+            {% endif %}
+            {% for page in fans_pagination.iter_pages() %}
+                {% if page is not none %}
+                    <li class="page-item" id="{{ page }}">
+                        <a href="{{ url_for('auth.show_followed_users', user_id=user_id, page_number=page) }}"
+                           class="page-link {% if fans_pagination.page == page %}active{% endif %}">
+                            {{ page }}
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled" id="...">
+                        <a href="#" class="page-link disabled">...</a>
+                    </li>
+                {% endif %}
+
+            {% endfor %}
+            {% if fans_pagination.has_next %}
+                <li class="page-item">
+                    <a href="{{ url_for('auth.show_followed_users', user_id=user_id, page_number=fans_pagination.next_num) }}"
+                       class="page-link">
+                        下一页
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <p href="#" class="page-link disabled">
+                        没有下一页了
+                    </p>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
+{% endblock %}
